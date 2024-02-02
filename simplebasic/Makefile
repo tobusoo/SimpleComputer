@@ -1,26 +1,27 @@
 # The application is not implemented
 
 DIR_NAME = simplebasic
-DIR_OBJ_PATH = $(OBJ_DIR)/$(DIR_NAME)
 
-LIB_NAME = $(DIR_NAME).a
-LIB_PATH = $(BIN_DIR)/$(LIB_NAME)
+APP_NAME = $(DIR_NAME).a
+APP_PATH = $(APP_NAME)
 
 SRC = $(wildcard *.c)
-OBJ = $(patsubst %.c, $(DIR_OBJ_PATH)/%.o, $(SRC))
+OBJ = $(patsubst %.c, %.o, $(SRC))
 
 DEPS = $(OBJ:.o=.d)
 
-.PHONY: all obj_dir 
-# all: obj_dir $(LIB_PATH)
-all: obj_dir # The application is not implemented
+.PHONY: all 
+# all: $(APP_PATH)
+all: 
+	@echo [INFO] $(DIR_NAME) is not implemented
+
 -include $(DEPS)
 
-obj_dir:
-	@mkdir -p $(DIR_OBJ_PATH)
-
-$(LIB_PATH): $(OBJ)
+$(APP_PATH): $(OBJ)
 	ar rcs $@ $^
 
-$(DIR_OBJ_PATH)/%.o: %.c
+%.o: %.c
 	$(CC) $(CFLAGS) $(DEPSFLAGS) -c -o $@ $<	
+
+clean:
+	@rm -f $(OBJ) $(APP_PATH) $(DEPS)

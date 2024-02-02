@@ -1,26 +1,27 @@
 # The library is not implemented
 
 DIR_NAME = mySimpleComputer
-DIR_OBJ_PATH = $(OBJ_DIR)/$(DIR_NAME)
 
 LIB_NAME = $(DIR_NAME).a
-LIB_PATH = $(BIN_DIR)/$(LIB_NAME)
+LIB_PATH = $(LIB_NAME)
 
 SRC = $(wildcard *.c)
-OBJ = $(patsubst %.c, $(DIR_OBJ_PATH)/%.o, $(SRC))
+OBJ = $(patsubst %.c, %.o, $(SRC))
 
 DEPS = $(OBJ:.o=.d)
 
-.PHONY: all obj_dir 
-# all: obj_dir $(LIB_PATH)
-all: obj_dir # The library is not implemented
--include $(DEPS)
+.PHONY: all 
+# all: $(LIB_PATH)
+all: 
+	@echo [INFO] $(DIR_NAME) is not implemented
 
-obj_dir:
-	@mkdir -p $(DIR_OBJ_PATH)
+-include $(DEPS)
 
 $(LIB_PATH): $(OBJ)
 	ar rcs $@ $^
 
-$(DIR_OBJ_PATH)/%.o: %.c
+%.o: %.c
 	$(CC) $(CFLAGS) $(DEPSFLAGS) -c -o $@ $<	
+
+clean:
+	@rm -f $(OBJ) $(LIB_PATH) $(DEPS)
