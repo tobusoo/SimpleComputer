@@ -1,4 +1,4 @@
-export CFLAGS = -Wall -Werror -I include
+export CFLAGS = -Wall -Werror -I${PWD}/include
 export DEPSFLAGS = -MMD
 export CC = gcc
 
