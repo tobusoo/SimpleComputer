@@ -11,7 +11,7 @@ all: $(APP_PATH)
 
 -include $(DEPS)
 
-$(APP_PATH): $(OBJ)
+$(APP_PATH): $(OBJ) $(LIBS)
 	$(CC) $(CFLAGS) -o $@ $^
 
 %.o: %.c
