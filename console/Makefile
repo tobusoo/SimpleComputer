@@ -1,4 +1,4 @@
-APP_NAME = test
+APP_NAME = pr01
 APP_PATH = $(APP_NAME)
 
 SRC = $(wildcard *.c)
@@ -18,4 +18,4 @@ $(APP_PATH): $(OBJ) $(LIBS)
 	$(CC) $(CFLAGS) $(DEPSFLAGS) -c -o $@ $<	
 
 clean:
-	@rm -rf $(OBJ) $(APP_PATH) $(DEPS)
+	@rm -rf $(OBJ) $(APP_PATH) $(DEPS) pr01

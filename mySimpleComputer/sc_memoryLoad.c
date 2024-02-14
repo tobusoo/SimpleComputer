@@ -20,7 +20,7 @@ sc_memoryLoad (char *filename)
       return -1;
     }
 
-  memcpy (sc_memory, temp_memory, SC_MEMORY_SIZE);
+  memcpy (sc_memory, temp_memory, SC_MEMORY_SIZE * sizeof (int));
 
   fclose (file);
   return 0;

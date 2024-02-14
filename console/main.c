@@ -4,21 +4,9 @@
 #include "console.h"
 #include "mySimpleComputer.h"
 
-int
-main ()
+void
+print_memory ()
 {
-
-  sc_memoryInit ();
-  sc_accumulatorInit ();
-  sc_icounterInit ();
-  sc_regInit ();
-
-  size_t n = rand () % 128;
-  for (size_t i = 0; i < n; i++)
-    {
-      sc_memorySet (rand () % 128, rand () % (0x7FFF));
-    }
-
   int k = 0;
   for (size_t i = 0; i < 12; i++)
     {
@@ -35,12 +23,33 @@ main ()
       printf (" ");
     }
   printf ("\n\n");
+}
+
+int
+main ()
+{
+
+  sc_memoryInit ();
+  sc_accumulatorInit ();
+  sc_icounterInit ();
+  sc_regInit ();
+
+  size_t n = rand () % 128;
+  for (size_t i = 0; i < n; i++)
+    {
+      sc_memorySet (rand () % 128, rand () % (0x7FFF));
+    }
+  print_memory ();
 
   char *memory_filename = "memory.data";
   printf ("result of sc_memorySave(\"memory.data\") = %d\n",
           sc_memorySave (memory_filename));
+  sc_memoryInit ();
+  print_memory ();
+
   printf ("result of sc_memoryLoad(\"memory.data\") = %d\n\n",
           sc_memoryLoad (memory_filename));
+  print_memory ();
 
   printf ("result of sc_memorySet (0, 0x7FFF + 1) = %d\n",
           sc_memorySet (0, 0x7FFF + 1));
