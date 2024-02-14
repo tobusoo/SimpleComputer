@@ -1,8 +1,10 @@
-export CFLAGS = -Wall -Werror -I include
+export CFLAGS = -Wall -Werror -I${PWD}/include
 export DEPSFLAGS = -MMD
 export CC = gcc
 
-SUBDIRS = console myBigChars myReadKey mySimpleComputer myTerm simpleassembler simplebasic
+SUBDIRS = myBigChars myReadKey mySimpleComputer myTerm simpleassembler simplebasic console
+IMPL_LIBS = mySimpleComputer/libmySimpleComputer.a
+export LIBS = $(patsubst %, ${PWD}/%, $(IMPL_LIBS)) 
 
 .PHONY: all clean subdirs
 

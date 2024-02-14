@@ -6,4 +6,4 @@ UseTab:          Never
 AllowShortIfStatementsOnASingleLine: false
 AllowShortLoopsOnASingleLine: false
 IndentCaseLabels: true
-ColumnLimit:     0
+ColumnLimit:     79
