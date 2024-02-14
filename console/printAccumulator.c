@@ -13,5 +13,7 @@ printAccumulator (void)
   else
     printf ("+");
 
-  printf ("%04X", value & 0b11111111111111);
+  int command = (value >> 7) & 0b1111111;
+  int operand = value & 0b1111111;
+  printf ("%02X%02X", command, operand);
 }
