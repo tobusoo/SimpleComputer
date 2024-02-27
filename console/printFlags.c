@@ -1,24 +1,27 @@
 #include <stdio.h>
 
+#include "console.h"
 #include "mySimpleComputer.h"
+#include "myTerm.h"
 
 void
 printFlags (void)
 {
   int value = 0;
+  mt_gotoXY (2, 88);
 
   sc_regGet (SC_OVERFLOW, &value);
-  printf ("%c ", value ? 'P' : '_');
+  mt_print ("    %c ", value ? 'P' : '_');
 
   sc_regGet (SC_DIV_BY_ZERO, &value);
-  printf ("%c ", value ? '0' : '_');
+  mt_print ("%c ", value ? '0' : '_');
 
   sc_regGet (SC_OUT_OF_RANGE, &value);
-  printf ("%c ", value ? 'M' : '_');
+  mt_print ("%c ", value ? 'M' : '_');
 
   sc_regGet (SC_IGNORE_CLOCK_PULSE, &value);
-  printf ("%c ", value ? 'T' : '_');
+  mt_print ("%c ", value ? 'T' : '_');
 
   sc_regGet (SC_INVALID_COMMAND, &value);
-  printf ("%c ", value ? 'E' : '_');
+  mt_print ("%c ", value ? 'E' : '_');
 }
