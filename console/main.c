@@ -1,8 +1,10 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <unistd.h>
 
 #include "console.h"
 #include "mySimpleComputer.h"
+#include "myTerm.h"
 
 void
 print_memory ()
@@ -12,95 +14,86 @@ print_memory ()
     {
       for (size_t j = 0; j < 10; j++)
         {
-          printCell (k++);
-          printf (" ");
+          printCell (k++, DEFAULT, DEFAULT);
+          mt_print (" ");
         }
-      printf ("\n");
+      mt_print ("\n");
     }
   for (size_t i = 0; i < 8; i++)
     {
-      printCell (i + 120);
-      printf (" ");
+      printCell (i + 120, DEFAULT, DEFAULT);
+      mt_print (" ");
     }
-  printf ("\n\n");
+  mt_print ("\n\n");
+}
+
+int
+is_bad_term ()
+{
+  if (!isatty (0))
+    {
+      printf ("Поток ввода не связан с терминалом\n");
+      return 1;
+    }
+  if (!isatty (1))
+    {
+      printf ("Поток вывода не связан с терминалом\n");
+      return 1;
+    }
+  if (!isatty (2))
+    {
+      printf ("Поток вывода ошибок не связан с терминалом\n");
+      return 1;
+    }
+
+  int rows, cols;
+  mt_getscreensize (&rows, &cols);
+  if (rows < 26 || cols < 110)
+    {
+      printf ("Размер терминала должен быть не меньше 26x110\n");
+      return 1;
+    }
+
+  return 0;
 }
 
 int
 main ()
 {
+  if (is_bad_term ())
+    {
+      return 1;
+    }
+  mt_clrscr ();
 
   sc_memoryInit ();
   sc_accumulatorInit ();
   sc_icounterInit ();
   sc_regInit ();
 
-  size_t n = rand () % 128;
+  size_t n = 128;
   for (size_t i = 0; i < n; i++)
     {
-      sc_memorySet (rand () % 128, rand () % (0x7FFF));
+      sc_memorySet (i, i);
     }
+  mt_clrscr ();
   print_memory ();
-
-  char *memory_filename = "memory.data";
-  printf ("result of sc_memorySave(\"memory.data\") = %d\n",
-          sc_memorySave (memory_filename));
-  sc_memoryInit ();
-  print_memory ();
-
-  printf ("result of sc_memoryLoad(\"memory.data\") = %d\n\n",
-          sc_memoryLoad (memory_filename));
-  print_memory ();
-
-  printf ("result of sc_memorySet (0, 0x7FFF + 1) = %d\n",
-          sc_memorySet (0, 0x7FFF + 1));
-
-  sc_regSet (SC_DIV_BY_ZERO, 1);
-  sc_regSet (SC_INVALID_COMMAND, 1);
-  sc_regSet (SC_OUT_OF_RANGE, 1);
-  printf ("\nSet all FLAGS:\n");
-  printFlags ();
-  printf ("\n\n");
-
-  printf ("result of sc_regSet (32, 10)) = %d\n", sc_regSet (32, 10));
-  printf ("\n");
-
-  printf ("Set accumulator to 0x1A34\n");
-  sc_accumulatorSet (0x1A34);
+  printDecodedCommand (0x1A34);
   printAccumulator ();
-  printf ("\n\n");
-
-  printf ("Result of sc_accumulatorSet (0xFFFF) = %d\n\n",
-          sc_accumulatorSet (0xFFFF));
-
-  printf ("Set counter to 0x1AFF\n");
-  sc_icounterSet (0x1AFF);
+  printFlags ();
   printCounters ();
-  printf ("\n\n");
+  printCommand ();
 
-  printf ("Result of sc_icounterSet (0xFFFF) = %d\n\n",
-          sc_icounterSet (0xFFFF));
+  for (int i = 0; i < 7; i++)
+    {
+      int address = rand () % 128;
+      printTerm (address, 0);
+      sleep (1);
+    }
 
-  int value = 0, sign = 0, command = 0, operand = 0;
-
-  printf ("print decoded value of accumulator:\n");
-  sc_accumulatorGet (&value);
-  printDecodedCommand (value);
-  printf ("\n\n");
-  printf ("print decoded value of memory[2]:\n");
-
-  value = 0;
-  sc_memoryGet (2, &value);
-  sc_commandDecode (value, &sign, &command, &operand);
-  printf ("sign = %d, command = %X, operand = %X\n", sign, command, operand);
-  printDecodedCommand (value);
-  printf ("\n\n");
-
-  value = 0;
-  printf ("Encode command (JUMP to 0xF): sign = 0, command = 0x28, operator = "
-          "10\n");
-  sc_commandEncode (0, 0x28, 0xF, &value);
-  printDecodedCommand (value);
-  printf ("\n");
+  mt_print ("\n");
+  mt_setdefaultcolor ();
+  mt_gotoXY (44, 0);
 
   return 0;
 }
