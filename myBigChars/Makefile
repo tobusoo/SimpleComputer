@@ -1,5 +1,3 @@
-# The library is not implemented
-
 DIR_NAME = myBigChars
 
 LIB_NAME = lib$(DIR_NAME)
@@ -11,9 +9,7 @@ OBJ = $(patsubst %.c, %.o, $(SRC))
 DEPS = $(OBJ:.o=.d)
 
 .PHONY: all 
-# all: $(LIB_PATH)
-all: 
-	@echo [INFO] $(LIB_NAME) is not implemented
+all: $(LIB_PATH)
 
 -include $(DEPS)
 
