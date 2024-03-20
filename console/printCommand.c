@@ -1,10 +1,12 @@
-#include "console.h"
-#include "mySimpleComputer.h"
-#include "myTerm.h"
+#include <myBigChars.h>
+#include <mySimpleComputer.h>
+#include <myTerm.h>
 
 void
 printCommand ()
 {
+  bc_box (4, 85, 20, 1, DEFAULT, DEFAULT, " Команда ", RED, BLACK);
+
   int address, value;
   sc_icounterGet (&address);
   mt_gotoXY (5, 88);

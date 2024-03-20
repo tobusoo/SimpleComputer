@@ -1,15 +1,16 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "console.h"
-#include "mySimpleComputer.h"
-#include "myTerm.h"
+#include <myBigChars.h>
+#include <mySimpleComputer.h>
+#include <myTerm.h>
 
 void
 printAccumulator (void)
 {
+  bc_box (1, 62, 21, 1, DEFAULT, DEFAULT, " Аккумулятор ", RED, BLACK);
   int value;
-  mt_gotoXY (2, 64);
+  mt_gotoXY (2, 63);
 
   mt_print (" sc: ");
   sc_accumulatorGet (&value);

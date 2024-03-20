@@ -1,14 +1,15 @@
 #include <stdio.h>
 
-#include "console.h"
-#include "mySimpleComputer.h"
-#include "myTerm.h"
+#include <myBigChars.h>
+#include <mySimpleComputer.h>
+#include <myTerm.h>
 
 void
 printFlags (void)
 {
+  bc_box (1, 85, 20, 1, DEFAULT, DEFAULT, " Регистр флагов ", RED, BLACK);
   int value = 0;
-  mt_gotoXY (2, 88);
+  mt_gotoXY (2, 87);
 
   sc_regGet (SC_OVERFLOW, &value);
   mt_print ("    %c ", value ? 'P' : '_');

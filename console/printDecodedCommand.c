@@ -1,8 +1,8 @@
 #include <stdio.h>
 
-#include "console.h"
-#include "mySimpleComputer.h"
-#include "myTerm.h"
+#include <myBigChars.h>
+#include <mySimpleComputer.h>
+#include <myTerm.h>
 
 static void
 print_bin (int value)
@@ -16,8 +16,10 @@ print_bin (int value)
 void
 printDecodedCommand (int value)
 {
+  bc_box (16, 1, 59, 1, DEFAULT, DEFAULT, " Редактируемая ячейка (формат) ",
+          RED, WHITE);
   mt_gotoXY (17, 2);
-  mt_print ("dec: %d | oct: %o | hex: %X      bin: ", value, value, value);
+  mt_print ("dec: %d | oct: %o | hex: %X     bin: ", value, value, value);
   print_bin (value);
   mt_print ("\n");
 }
