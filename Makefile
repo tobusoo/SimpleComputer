@@ -3,7 +3,7 @@ export DEPSFLAGS = -MMD
 export CC = gcc
 
 SUBDIRS = myBigChars myReadKey mySimpleComputer myTerm simpleassembler simplebasic console
-IMPL_LIBS = mySimpleComputer/libmySimpleComputer.a myTerm/libmyTerm.a myBigChars/libmyBigChars.a
+IMPL_LIBS = mySimpleComputer/libmySimpleComputer.a myTerm/libmyTerm.a myBigChars/libmyBigChars.a myReadKey/libmyReadKey.a
 export LIBS = $(patsubst %, ${PWD}/%, $(IMPL_LIBS)) 
 
 .PHONY: all clean subdirs
