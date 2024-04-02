@@ -188,7 +188,7 @@ void
 generate_8 (int *big)
 {
   generate_0 (big);
-  for (int i = 1; i < 8; i++)
+  for (int i = 2; i < 7; i++)
     {
       bc_setbigcharpos (big, 3, i, 1);
       bc_setbigcharpos (big, 4, i, 1);

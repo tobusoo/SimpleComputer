@@ -19,7 +19,7 @@ printDecodedCommand (int value)
   bc_box (16, 1, 59, 1, DEFAULT, DEFAULT, " Редактируемая ячейка (формат) ",
           RED, WHITE);
   mt_gotoXY (17, 2);
-  mt_print ("dec: %d | oct: %o | hex: %X     bin: ", value, value, value);
+  mt_print ("dec: %05d | oct: %05o | hex: %04X    bin: ", value, value, value);
   print_bin (value);
   mt_print ("\n");
 }
