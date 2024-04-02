@@ -208,7 +208,7 @@ cell_redactor ()
   if (ret == 0)
     sc_memorySet (curr_address, value);
 
-  return !ret;
+  return ret;
 }
 
 void
@@ -299,48 +299,48 @@ main (int argc, char *argv[])
       printCell (curr_address, DEFAULT, DEFAULT);
       switch (key)
         {
-          case KEY_DOWN_ARROW:
-            if (col == 8 || col == 9)
-              row = row + 1 < 12 ? row + 1 : row;
-            else
-              row = row + 1 < 13 ? row + 1 : row;
-            toAdress ();
-            break;
-          case KEY_UP_ARROW:
-            row = row - 1 >= 0 ? row - 1 : row;
-            toAdress ();
-            break;
-          case KEY_LEFT_ARROW:
-            col = col - 1 >= 0 ? col - 1 : col;
-            toAdress ();
-            break;
-          case KEY_RIGHT_ARROW:
-            if (row == 12)
-              col = col + 1 < 8 ? col + 1 : col;
-            else
-              col = col + 1 < 10 ? col + 1 : col;
-            toAdress ();
-            break;
-          case KEY_ENTER:
-            change_cell = cell_redactor ();
-            break;
-          case KEY_S:
-            store_memory ();
-            break;
-          case KEY_L:
-            load_memory ();
-            break;
-          case KEY_F5:
-            accum_redactor ();
-            break;
-          case KEY_F6:
-            icounter_redactor ();
-            break;
-          case KEY_ESC:
-            need_exit = true;
-            break;
-          default:
-            break;
+        case KEY_DOWN_ARROW:
+          if (col == 8 || col == 9)
+            row = row + 1 < 12 ? row + 1 : row;
+          else
+            row = row + 1 < 13 ? row + 1 : row;
+          toAdress ();
+          break;
+        case KEY_UP_ARROW:
+          row = row - 1 >= 0 ? row - 1 : row;
+          toAdress ();
+          break;
+        case KEY_LEFT_ARROW:
+          col = col - 1 >= 0 ? col - 1 : col;
+          toAdress ();
+          break;
+        case KEY_RIGHT_ARROW:
+          if (row == 12)
+            col = col + 1 < 8 ? col + 1 : col;
+          else
+            col = col + 1 < 10 ? col + 1 : col;
+          toAdress ();
+          break;
+        case KEY_ENTER:
+          change_cell = cell_redactor ();
+          break;
+        case KEY_S:
+          store_memory ();
+          break;
+        case KEY_L:
+          load_memory ();
+          break;
+        case KEY_F5:
+          accum_redactor ();
+          break;
+        case KEY_F6:
+          icounter_redactor ();
+          break;
+        case KEY_ESC:
+          need_exit = true;
+          break;
+        default:
+          break;
         }
       sc_memoryGet (curr_address, &cur_value);
 
