@@ -1,14 +1,15 @@
 #include <stdio.h>
 
-#include "console.h"
-#include "mySimpleComputer.h"
-#include "myTerm.h"
+#include <myBigChars.h>
+#include <mySimpleComputer.h>
+#include <myTerm.h>
 
 void
 printCounters (void)
 {
+  bc_box (4, 62, 21, 1, DEFAULT, DEFAULT, " Счетчик  команд ", RED, BLACK);
   int value;
-  mt_gotoXY (5, 64);
+  mt_gotoXY (5, 63);
 
   sc_icounterGet (&value);
   mt_print ("      IC: ");

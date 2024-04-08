@@ -5,5 +5,5 @@ IndentWidth:     2
 UseTab:          Never
 AllowShortIfStatementsOnASingleLine: false
 AllowShortLoopsOnASingleLine: false
-IndentCaseLabels: true
+IndentCaseLabels: false
 ColumnLimit:     79
