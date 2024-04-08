@@ -204,7 +204,7 @@ cell_redactor ()
   mt_print ("     ");
   mt_gotoXY (row + 2, col * 6 + 2);
 
-  int ret = rk_readvalue (&value, 100);
+  int ret = rk_readvalue (&value, 10);
   if (ret == 0)
     sc_memorySet (curr_address, value);
 
@@ -254,6 +254,30 @@ load_memory ()
   rk_mytermrestore ();
 }
 
+void
+reset ()
+{
+  sc_memoryInit ();
+  sc_accumulatorInit ();
+  sc_icounterInit ();
+  sc_regInit ();
+
+  print_memory ();
+  printAccumulator ();
+  printFlags ();
+  printCounters ();
+  printCommand ();
+  printBigCell ();
+  printCache ();
+  printKeys ();
+
+  row = 0;
+  col = 0;
+  toAdress ();
+  printCell (curr_address, BLACK, WHITE);
+  printTerm (0, 0);
+}
+
 int
 main (int argc, char *argv[])
 {
@@ -290,7 +314,7 @@ main (int argc, char *argv[])
   sc_memoryGet (curr_address, &cur_value);
   printDecodedCommand (cur_value);
 
-  rk_mytermregime (1, 0, 0, 0, 1);
+  rk_mytermregime (0, 0, 1, 0, 1);
   printTerm (0, 0);
 
   while (!need_exit)
@@ -301,24 +325,33 @@ main (int argc, char *argv[])
         {
         case KEY_DOWN_ARROW:
           if (col == 8 || col == 9)
-            row = row + 1 < 12 ? row + 1 : row;
+            row = row + 1 < 12 ? row + 1 : 0;
           else
-            row = row + 1 < 13 ? row + 1 : row;
+            row = row + 1 < 13 ? row + 1 : 0;
           toAdress ();
           break;
         case KEY_UP_ARROW:
-          row = row - 1 >= 0 ? row - 1 : row;
+          if (col == 8 || col == 9)
+            row = row - 1 >= 0 ? row - 1 : 11;
+          else
+            row = row - 1 >= 0 ? row - 1 : 12;
+
           toAdress ();
           break;
         case KEY_LEFT_ARROW:
-          col = col - 1 >= 0 ? col - 1 : col;
+          if (row == 12)
+            col = col - 1 >= 0 ? col - 1 : 7;
+          else
+            col = col - 1 >= 0 ? col - 1 : 9;
+
           toAdress ();
           break;
         case KEY_RIGHT_ARROW:
           if (row == 12)
-            col = col + 1 < 8 ? col + 1 : col;
+            col = col + 1 < 8 ? col + 1 : 0;
           else
-            col = col + 1 < 10 ? col + 1 : col;
+            col = col + 1 < 10 ? col + 1 : 0;
+
           toAdress ();
           break;
         case KEY_ENTER:
@@ -329,6 +362,9 @@ main (int argc, char *argv[])
           break;
         case KEY_L:
           load_memory ();
+          break;
+        case KEY_I:
+          reset ();
           break;
         case KEY_F5:
           accum_redactor ();
@@ -344,9 +380,12 @@ main (int argc, char *argv[])
         }
       sc_memoryGet (curr_address, &cur_value);
 
-      printCell (curr_address, BLACK, WHITE);
-      printBigCell ();
-      printDecodedCommand (cur_value);
+      if (curr_address != prev_address)
+        {
+          printCell (curr_address, BLACK, WHITE);
+          printBigCell ();
+          printDecodedCommand (cur_value);
+        }
       if (change_cell)
         {
           change_cell = false;

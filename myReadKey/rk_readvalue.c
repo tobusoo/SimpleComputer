@@ -6,17 +6,8 @@
 #include <string.h>
 #include <unistd.h>
 
-bool
-check_char (char ch, int i)
-{
-  if (i == 0)
-    return ch == '+' || ch == '-';
-
-  return isdigit (ch) || (ch >= 'A' && ch <= 'F') || (ch >= 'a' && ch <= 'f');
-}
-
 void
-decode (char *buf, int *value)
+decode_from_buf (char *buf, int *value)
 {
   int end = strtol (buf + 3, NULL, 16);
   end = end >= 0b1111111 ? 0b1111111 : end;
@@ -28,13 +19,23 @@ decode (char *buf, int *value)
   *value = (sign << 14) | (begin << 7) | end;
 }
 
+bool
+is_correct_key_at_i_position (enum keys key, int i)
+{
+  if (i == 0)
+    return key == KEY_PLUS || key == KEY_MINUS;
+
+  return key >= KEY_0 && key <= KEY_F;
+}
+
 int
 rk_readvalue (int *value, int timeout)
 {
-  char buf[32] = { 0 };
+  char buf[5] = { 0 };
   bool is_completed = false;
-  int ret = 1;
+  int ret = 0;
   int i = 0;
+  enum keys key;
 
   if (!value)
     return -1;
@@ -43,14 +44,23 @@ rk_readvalue (int *value, int timeout)
   if (rk_mytermregime (0, timeout, 0, 0, 1) == -1)
     return -1;
 
-  while (!is_completed && !ret == 0)
+  while (!is_completed && ret != -1)
     {
-      ret = read (STDIN_FILENO, buf + i, 4);
-      if (strcmp (buf + i, "\E") == 0)
+      ret = rk_readkey (&key);
+      if (key == KEY_ESC)
         return -1;
-      if (check_char (buf[i], i))
+      if (is_correct_key_at_i_position (key, i))
         {
-          mt_print ("%c", toupper (buf[i]));
+          if (key <= KEY_9)
+            buf[i] = key + '0';
+          else if (key <= KEY_F)
+            buf[i] = key + 'A' - KEY_A;
+          else if (key == KEY_MINUS)
+            buf[i] = '-';
+          else if (key == KEY_PLUS)
+            buf[i] = '+';
+
+          mt_print ("%c", buf[i]);
           i++;
         }
 
@@ -58,7 +68,7 @@ rk_readvalue (int *value, int timeout)
     }
 
   if (is_completed)
-    decode (buf, value);
+    decode_from_buf (buf, value);
 
   if (rk_mytermrestore () == -1)
     return -1;
