@@ -1,4 +1,4 @@
-APP_NAME = pr05
+APP_NAME = pr06
 APP_PATH = $(APP_NAME)
 
 APP_FONT = font

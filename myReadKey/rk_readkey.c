@@ -9,6 +9,11 @@ int
 read_esc (char *buffer, enum keys *key)
 {
   int num = read (STDIN_FILENO, buffer, 1);
+  if (num == 0)
+    {
+      *key = KEY_ESC;
+      return 1;
+    }
   buffer[num] = '\0';
   bool is_correct_esc = true;
 
@@ -45,8 +50,6 @@ read_esc (char *buffer, enum keys *key)
       else
         is_correct_esc = false;
     }
-  else if (buffer[0] == '\e')
-    *key = KEY_ESC;
   else
     is_correct_esc = false;
 

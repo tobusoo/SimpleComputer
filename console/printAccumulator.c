@@ -8,7 +8,6 @@
 void
 printAccumulator (void)
 {
-  bc_box (1, 62, 21, 1, DEFAULT, DEFAULT, " Аккумулятор ", RED, BLACK);
   int value;
   mt_gotoXY (2, 63);
 

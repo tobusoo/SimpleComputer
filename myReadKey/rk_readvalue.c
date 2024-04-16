@@ -6,6 +6,17 @@
 #include <string.h>
 #include <unistd.h>
 
+static int
+twos_complement_code (int x)
+{
+  bool sign = x >> 14;
+  if (sign == 0)
+    return x;
+
+  x = ((~x + 1) | 0b1 << 14) & 0b111111111111111;
+  return x == 0b100000000000000 ? 0 : x;
+}
+
 void
 decode_from_buf (char *buf, int *value)
 {
@@ -72,6 +83,7 @@ rk_readvalue (int *value, int timeout)
 
   if (rk_mytermrestore () == -1)
     return -1;
+  *value = twos_complement_code (*value);
 
   return is_completed == 1 ? 0 : -2;
 }

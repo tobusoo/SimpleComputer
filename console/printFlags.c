@@ -7,7 +7,6 @@
 void
 printFlags (void)
 {
-  bc_box (1, 85, 20, 1, DEFAULT, DEFAULT, " Регистр флагов ", RED, BLACK);
   int value = 0;
   mt_gotoXY (2, 87);
 

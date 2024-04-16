@@ -4,9 +4,10 @@
 int
 sc_icounterSet (int value)
 {
-  if (value >> 15)
+  if (0 > value || value > 127)
     {
       SC_BIT_SET (sc_register, SC_OVERFLOW);
+      SC_BIT_SET (sc_register, SC_IGNORE_CLOCK_PULSE);
       return -1;
     }
 
