@@ -5,8 +5,6 @@
 void
 printCommand ()
 {
-  bc_box (4, 85, 20, 1, DEFAULT, DEFAULT, " Команда ", RED, BLACK);
-
   int address, value;
   sc_icounterGet (&address);
   mt_gotoXY (5, 88);
@@ -18,6 +16,7 @@ printCommand ()
   else
     {
       sc_memoryGet (address, &value);
+
       if (value >> 14)
         mt_print ("    -");
       else

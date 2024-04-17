@@ -4,9 +4,9 @@ int
 mt_setcursorvisible (int value)
 {
   if (value)
-    printf ("\e[?25h\e[?8c");
+    printf ("\e[?25h");
   else
-    printf ("\e[?25l\e[?1c");
+    printf ("\e[?25l");
 
   return 0;
 }

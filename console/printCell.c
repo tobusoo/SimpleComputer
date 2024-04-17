@@ -1,5 +1,5 @@
-#include "mySimpleComputer.h"
-#include "myTerm.h"
+#include <mySimpleComputer.h>
+#include <myTerm.h>
 
 void
 printCell (int address, enum colors fg, enum colors bg)
@@ -9,13 +9,15 @@ printCell (int address, enum colors fg, enum colors bg)
   mt_setbgcolor (bg);
   mt_gotoXY (address / 10 + 2, 6 * (address % 10) + 2);
   sc_memoryGet (address, &value);
+
+  int command = (value >> 7) & 0b1111111;
+  int operand = value & 0b1111111;
+
   if (value >> 14)
     mt_print ("-");
   else
     mt_print ("+");
 
-  int command = (value >> 7) & 0b1111111;
-  int operand = value & 0b1111111;
   mt_print ("%02X%02X", command, operand);
   mt_setdefaultcolor ();
 }

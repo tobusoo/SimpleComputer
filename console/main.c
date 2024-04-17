@@ -3,7 +3,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <termios.h>
-#include <time.h>
 #include <unistd.h>
 
 #include "console.h"
@@ -12,10 +11,13 @@
 #include <mySimpleComputer.h>
 #include <myTerm.h>
 
+#include <signal.h>
+#include <sys/time.h>
+#include <time.h>
+
 struct termios default_term;
 
 int curr_address = 0;
-int prev_address = 0;
 int row = 0, col = 0;
 int big[36] = { 0 };
 
@@ -23,27 +25,6 @@ void
 toAdress ()
 {
   curr_address = row * 10 + col;
-}
-
-void
-print_memory ()
-{
-  int k = 0;
-  for (size_t i = 0; i < 12; i++)
-    {
-      for (size_t j = 0; j < 10; j++)
-        {
-          printCell (k++, DEFAULT, DEFAULT);
-          mt_print (" ");
-        }
-      mt_print ("\n");
-    }
-  for (size_t i = 0; i < 8; i++)
-    {
-      printCell (i + 120, DEFAULT, DEFAULT);
-      mt_print (" ");
-    }
-  bc_box (1, 1, 59, 13, DEFAULT, DEFAULT, " Оперативная память ", RED, BLACK);
 }
 
 int
@@ -79,8 +60,6 @@ is_bad_term ()
 void
 printBigCell (void)
 {
-  bc_box (7, 62, 43, 10, DEFAULT, DEFAULT,
-          " Редактируемая ячейка (увеличено) ", RED, WHITE);
   int value;
   sc_memoryGet (curr_address, &value);
 
@@ -112,7 +91,6 @@ printBigCell (void)
 void
 printKeys (void)
 {
-  bc_box (19, 75, 30, 5, DEFAULT, DEFAULT, " Клавиши ", GREEN, WHITE);
   mt_gotoXY (20, 76);
   mt_print ("l - load  s - save   i - reset");
   mt_gotoXY (21, 76);
@@ -128,7 +106,6 @@ printKeys (void)
 void
 printCache (void)
 {
-  bc_box (19, 1, 60, 5, DEFAULT, DEFAULT, " Кеш процессора ", GREEN, WHITE);
   mt_gotoXY (20, 2);
   mt_print ("in progress...");
 }
@@ -186,6 +163,7 @@ void
 icounter_redactor ()
 {
   int value;
+  sc_icounterGet (&value);
   mt_gotoXY (5, 73);
   mt_print ("     ");
   mt_gotoXY (5, 73);
@@ -243,8 +221,7 @@ load_memory ()
   sc_memoryLoad (filename);
   mt_gotoXY (26, 2);
   mt_print ("%*c", 100, ' ');
-  print_memory ();
-
+  printMemory ();
   int val;
   sc_memoryGet (curr_address, &val);
 
@@ -255,6 +232,21 @@ load_memory ()
 }
 
 void
+updateUI ()
+{
+  int cur_value;
+  sc_memoryGet (curr_address, &cur_value);
+  printCommand ();
+  printDecodedCommand (cur_value);
+  printBigCell ();
+  printAccumulator ();
+  printCounters ();
+  printMemory ();
+  printCell (curr_address, BLACK, WHITE);
+  printFlags ();
+}
+
+void
 reset ()
 {
   sc_memoryInit ();
@@ -262,25 +254,104 @@ reset ()
   sc_icounterInit ();
   sc_regInit ();
 
-  print_memory ();
-  printAccumulator ();
-  printFlags ();
-  printCounters ();
-  printCommand ();
-  printBigCell ();
-  printCache ();
-  printKeys ();
-
   row = 0;
   col = 0;
   toAdress ();
   printCell (curr_address, BLACK, WHITE);
-  printTerm (0, 0);
+  updateUI ();
+}
+
+void
+draw_boxes ()
+{
+  bc_box (1, 1, 59, 13, DEFAULT, DEFAULT, " Оперативная память ", RED, BLACK);
+  bc_box (1, 62, 21, 1, DEFAULT, DEFAULT, " Аккумулятор ", RED, BLACK);
+  bc_box (1, 85, 20, 1, DEFAULT, DEFAULT, " Регистр флагов ", RED, BLACK);
+  bc_box (4, 62, 21, 1, DEFAULT, DEFAULT, " Счетчик  команд ", RED, BLACK);
+  bc_box (4, 85, 20, 1, DEFAULT, DEFAULT, " Команда ", RED, BLACK);
+  bc_box (7, 62, 43, 10, DEFAULT, DEFAULT,
+          " Редактируемая ячейка (увеличено) ", RED, WHITE);
+  bc_box (19, 1, 60, 5, DEFAULT, DEFAULT, " Кеш процессора ", GREEN, WHITE);
+  bc_box (19, 75, 30, 5, DEFAULT, DEFAULT, " Клавиши ", GREEN, WHITE);
+  bc_box (19, 63, 10, 5, DEFAULT, DEFAULT, " IN--OUT ", GREEN, WHITE);
+}
+
+void
+key_processing (bool *update_ui, bool *need_exit)
+{
+  enum keys key;
+  rk_readkey (&key);
+  *update_ui = key == KEY_UNKNOWN ? false : true;
+
+  switch (key)
+    {
+    case KEY_DOWN_ARROW:
+      if (col == 8 || col == 9)
+        row = row + 1 < 12 ? row + 1 : 0;
+      else
+        row = row + 1 < 13 ? row + 1 : 0;
+      toAdress ();
+      break;
+    case KEY_UP_ARROW:
+      if (col == 8 || col == 9)
+        row = row - 1 >= 0 ? row - 1 : 11;
+      else
+        row = row - 1 >= 0 ? row - 1 : 12;
+
+      toAdress ();
+      break;
+    case KEY_LEFT_ARROW:
+      if (row == 12)
+        col = col - 1 >= 0 ? col - 1 : 7;
+      else
+        col = col - 1 >= 0 ? col - 1 : 9;
+
+      toAdress ();
+      break;
+    case KEY_RIGHT_ARROW:
+      if (row == 12)
+        col = col + 1 < 8 ? col + 1 : 0;
+      else
+        col = col + 1 < 10 ? col + 1 : 0;
+
+      toAdress ();
+      break;
+    case KEY_ENTER:
+      cell_redactor ();
+      break;
+    case KEY_S:
+      store_memory ();
+      break;
+    case KEY_L:
+      load_memory ();
+      break;
+    case KEY_I:
+      reset ();
+      break;
+    case KEY_R:
+      sc_regSet (SC_IGNORE_CLOCK_PULSE, 0);
+      break;
+    case KEY_T:
+      CU ();
+      break;
+    case KEY_F5:
+      accum_redactor ();
+      break;
+    case KEY_F6:
+      icounter_redactor ();
+      break;
+    case KEY_ESC:
+      *need_exit = true;
+      break;
+    default:
+      break;
+    }
 }
 
 int
 main (int argc, char *argv[])
 {
+  mt_setcursorvisible (0);
   if (term_preprocessing (argc, argv) == 1)
     return 1;
 
@@ -289,108 +360,36 @@ main (int argc, char *argv[])
   sc_icounterInit ();
   sc_regInit ();
 
-  size_t n = 128;
-  for (size_t i = 0; i < n; i++)
-    {
-      sc_memorySet (i, i);
-    }
+  signal (SIGALRM, IRC);
+  signal (SIGUSR1, IRC);
+  struct itimerval nval, oval;
+  nval.it_interval.tv_sec = 0;
+  nval.it_interval.tv_usec = 500000;
+  nval.it_value.tv_sec = 1;
+  nval.it_value.tv_usec = 0;
+  setitimer (ITIMER_REAL, &nval, &oval);
 
-  print_memory ();
-  printAccumulator ();
-  printFlags ();
-  printCounters ();
-  printCommand ();
-  sc_memorySet (0, 0x1a34);
-  printBigCell ();
+  rk_mytermregime (0, 1, 0, 0, 1);
+  bool need_exit = false;
+  int is_not_running = true;
+  bool update_ui = true;
+
+  draw_boxes ();
   printCache ();
   printKeys ();
-  printCell (curr_address, BLACK, WHITE);
-  mt_setcursorvisible (0);
-
-  bool need_exit = false;
-  bool change_cell = false;
-  enum keys key;
-  int cur_value;
-  sc_memoryGet (curr_address, &cur_value);
-  printDecodedCommand (cur_value);
-
-  rk_mytermregime (0, 0, 1, 0, 1);
-  printTerm (0, 0);
-
+  updateUI (is_not_running);
   while (!need_exit)
     {
-      rk_readkey (&key);
-      printCell (curr_address, DEFAULT, DEFAULT);
-      switch (key)
+      if (update_ui)
         {
-        case KEY_DOWN_ARROW:
-          if (col == 8 || col == 9)
-            row = row + 1 < 12 ? row + 1 : 0;
-          else
-            row = row + 1 < 13 ? row + 1 : 0;
-          toAdress ();
-          break;
-        case KEY_UP_ARROW:
-          if (col == 8 || col == 9)
-            row = row - 1 >= 0 ? row - 1 : 11;
-          else
-            row = row - 1 >= 0 ? row - 1 : 12;
-
-          toAdress ();
-          break;
-        case KEY_LEFT_ARROW:
-          if (row == 12)
-            col = col - 1 >= 0 ? col - 1 : 7;
-          else
-            col = col - 1 >= 0 ? col - 1 : 9;
-
-          toAdress ();
-          break;
-        case KEY_RIGHT_ARROW:
-          if (row == 12)
-            col = col + 1 < 8 ? col + 1 : 0;
-          else
-            col = col + 1 < 10 ? col + 1 : 0;
-
-          toAdress ();
-          break;
-        case KEY_ENTER:
-          change_cell = cell_redactor ();
-          break;
-        case KEY_S:
-          store_memory ();
-          break;
-        case KEY_L:
-          load_memory ();
-          break;
-        case KEY_I:
-          reset ();
-          break;
-        case KEY_F5:
-          accum_redactor ();
-          break;
-        case KEY_F6:
-          icounter_redactor ();
-          break;
-        case KEY_ESC:
-          need_exit = true;
-          break;
-        default:
-          break;
+          updateUI ();
         }
-      sc_memoryGet (curr_address, &cur_value);
 
-      if (curr_address != prev_address)
-        {
-          printCell (curr_address, BLACK, WHITE);
-          printBigCell ();
-          printDecodedCommand (cur_value);
-        }
-      if (change_cell)
-        {
-          change_cell = false;
-          printTerm (curr_address, 1);
-        }
+      sc_regGet (SC_IGNORE_CLOCK_PULSE, &is_not_running);
+      if (is_not_running)
+        key_processing (&update_ui, &need_exit);
+      else
+        update_ui = false;
     }
 
   mt_setdefaultcolor ();
