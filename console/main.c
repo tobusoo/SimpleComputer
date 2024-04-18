@@ -351,10 +351,10 @@ key_processing (bool *update_ui, bool *need_exit)
 int
 main (int argc, char *argv[])
 {
-  mt_setcursorvisible (0);
   if (term_preprocessing (argc, argv) == 1)
     return 1;
 
+  mt_setcursorvisible (1);
   sc_memoryInit ();
   sc_accumulatorInit ();
   sc_icounterInit ();
