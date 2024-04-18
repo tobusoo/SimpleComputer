@@ -354,7 +354,7 @@ main (int argc, char *argv[])
   if (term_preprocessing (argc, argv) == 1)
     return 1;
 
-  mt_setcursorvisible (1);
+  mt_setcursorvisible (0);
   sc_memoryInit ();
   sc_accumulatorInit ();
   sc_icounterInit ();
