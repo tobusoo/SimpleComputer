@@ -1,27 +1,21 @@
-# The application is not implemented
-
-DIR_NAME = simplebasic
-
-APP_NAME = $(DIR_NAME)
+APP_NAME = sbt
 APP_PATH = $(APP_NAME)
 
-SRC = $(wildcard *.c)
-OBJ = $(patsubst %.c, %.o, $(SRC))
+SRC = $(wildcard *.cpp)
+OBJ = $(patsubst %.cpp, %.o, $(SRC))
 
 DEPS = $(OBJ:.o=.d)
 
 .PHONY: all 
-# all: $(APP_PATH)
-all: 
-	@echo [INFO] $(APP_NAME) is not implemented
+all: $(APP_PATH)
 
 -include $(DEPS)
 
 $(APP_PATH): $(OBJ)
-	$(CC) $(CFLAGS) -o $@ $^
+	$(CPP) $(CPPFLAGS) -o $@ $^
 
 %.o: %.c
-	$(CC) $(CFLAGS) $(DEPSFLAGS) -c -o $@ $<	
+	$(CPP) $(CPPFLAGS) $(DEPSFLAGS) -c -o $@ $<	
 
 clean:
 	@rm -f $(OBJ) $(APP_PATH) $(DEPS)
