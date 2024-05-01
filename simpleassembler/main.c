@@ -18,6 +18,9 @@ print_usage (const char *app_name)
 char *
 skip_space (char *string)
 {
+  if (!string)
+    return string;
+
   while (*string == ' ')
     string++;
   return string;
@@ -82,6 +85,8 @@ get_command (char *command, int *value)
     *value = 0x35;
   else if (strcmp (command, "XOR") == 0)
     *value = 0x36;
+  else if (strcmp (command, "JNS") == 0)
+    *value = 0x37;
   else if (strcmp (command, "=") == 0)
     return 1;
   else

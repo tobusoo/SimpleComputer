@@ -95,6 +95,17 @@ JZ (int address)
   return -1;
 }
 
+int
+JNS (int address)
+{
+  int value;
+  sc_accumulatorGet (&value);
+  if (value >> 14 == 0 && value != 0)
+    return sc_icounterSet (address);
+
+  return -1;
+}
+
 void
 HALT ()
 {
@@ -163,6 +174,9 @@ CU (void)
           break;
         case 0x2B: // HALT
           HALT (operand);
+          break;
+        case 0x37: // JNS
+          jump_result = JNS (operand);
           break;
         default:
           break;
