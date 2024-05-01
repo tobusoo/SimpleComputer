@@ -1,6 +1,8 @@
-export CFLAGS = -Wall -Werror -g -I${PWD}/include
+export CFLAGS = -Wall -Werror -I${PWD}/include
+export CPPFLAGS = CFLAGS
 export DEPSFLAGS = -MMD
 export CC = gcc
+export CPP = g++
 
 SUBDIRS = myBigChars myReadKey mySimpleComputer myTerm simpleassembler simplebasic console
 IMPL_LIBS = mySimpleComputer/libmySimpleComputer.a myTerm/libmyTerm.a myBigChars/libmyBigChars.a myReadKey/libmyReadKey.a
