@@ -1,5 +1,5 @@
 export CFLAGS = -Wall -Werror -I${PWD}/include
-export CPPFLAGS = CFLAGS
+export CPPFLAGS = $(CFLAGS)
 export DEPSFLAGS = -MMD
 export CC = gcc
 export CPP = g++
