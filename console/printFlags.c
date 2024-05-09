@@ -11,7 +11,7 @@ printFlags (void)
   mt_gotoXY (2, 87);
 
   sc_regGet (SC_OVERFLOW, &value);
-  mt_print ("    %c ", value ? 'P' : '_');
+  mt_print ("      %c ", value ? 'P' : '_');
 
   sc_regGet (SC_DIV_BY_ZERO, &value);
   mt_print ("%c ", value ? '0' : '_');

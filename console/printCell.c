@@ -8,7 +8,9 @@ printCell (int address, enum colors fg, enum colors bg)
   mt_setfgcolor (fg);
   mt_setbgcolor (bg);
   mt_gotoXY (address / 10 + 2, 6 * (address % 10) + 2);
+  sc_cacheIgnore (1);
   sc_memoryGet (address, &value);
+  sc_cacheIgnore (0);
 
   int command = (value >> 7) & 0b1111111;
   int operand = value & 0b1111111;

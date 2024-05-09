@@ -1,4 +1,5 @@
 #pragma once
+#include <stdbool.h>
 
 #define SC_OVERFLOW 1
 #define SC_DIV_BY_ZERO 2
@@ -29,6 +30,16 @@ int sc_icounterInit (void);
 int sc_icounterSet (int value);
 int sc_icounterGet (int *value);
 
+int sc_idleClockInit (void);
+int sc_idleClockSet (int value);
+int sc_idleClockGet (int *value);
+
 int sc_commandEncode (int sign, int command, int operand, int *value);
 int sc_commandDecode (int value, int *sign, int *command, int *operand);
 int sc_commandValidate (int command);
+
+void sc_cacheInit (void);
+int sc_cacheLineNumber (int i);               // only for UI
+void sc_cacheIgnore (int ignore);             // only for UI
+int sc_cacheGet (int cache_id, int addr_num); // only for UI
+void sc_memoryController (int address, int *cache_id, int *addr_num);

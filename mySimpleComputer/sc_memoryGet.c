@@ -27,6 +27,13 @@ sc_memoryGet (int address, int *value)
       return -1;
     }
 
-  *value = forward_code (sc_memory[address]);
+  if (sc_cache_ignore)
+    *value = sc_memory[address];
+  else
+    {
+      int cache_indx, addr_num;
+      sc_memoryController (address, &cache_indx, &addr_num);
+      *value = forward_code (cache[cache_indx].values[addr_num]);
+    }
   return 0;
 }

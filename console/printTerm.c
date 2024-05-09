@@ -27,11 +27,11 @@ printTerm (int address, int input)
 
   for (int i = 0; i < 5; i++)
     {
-      mt_gotoXY (20 + i, 64);
+      mt_gotoXY (20 + i, 68);
       mt_print ("          ");
       if (in_out[i].is_full)
         {
-          mt_gotoXY (20 + i, 64);
+          mt_gotoXY (20 + i, 68);
           mt_print ("%02d%c ", in_out[i].address, in_out[i].input ? '<' : '>');
 
           value = in_out[i].value;
@@ -50,7 +50,7 @@ void
 updateTerm ()
 {
   sc_memoryGet (in_out[4].address, &in_out[4].value);
-  mt_gotoXY (24, 64);
+  mt_gotoXY (24, 68);
   mt_print ("%02d%c ", in_out[4].address, in_out[4].input ? '<' : '>');
   int value = in_out[4].value;
 
