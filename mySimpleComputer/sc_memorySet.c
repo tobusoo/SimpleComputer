@@ -15,6 +15,13 @@ sc_memorySet (int address, int value)
       return -1;
     }
 
-  sc_memory[address] = value;
+  if (sc_cache_ignore)
+    sc_memory[address] = value;
+  else
+    {
+      int cache_indx, addr_num;
+      sc_memoryController (address, &cache_indx, &addr_num);
+      cache[cache_indx].values[addr_num] = value;
+    }
   return 0;
 }
