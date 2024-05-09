@@ -5,11 +5,14 @@
 void
 printCounters (void)
 {
-  int value;
+  int value, idle_clock;
   mt_gotoXY (5, 63);
 
   sc_icounterGet (&value);
-  mt_print ("      IC: ");
+  sc_idleClockGet (&idle_clock);
+  mt_print ("T: %02d     ", idle_clock);
+
+  mt_print ("IC: ");
   if (value >> 14)
     mt_print ("-");
   else

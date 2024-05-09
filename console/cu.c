@@ -27,9 +27,9 @@ READ (int address)
   int value;
   printTerm (address, 1);
   nanosleep (&ts, &ts);
-  mt_gotoXY (24, 69);
+  mt_gotoXY (24, 73);
   mt_print ("     ");
-  mt_gotoXY (24, 69);
+  mt_gotoXY (24, 73);
   nanosleep (&ts, &ts);
 
   sc_regSet (SC_IGNORE_CLOCK_PULSE, 1);

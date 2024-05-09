@@ -9,6 +9,7 @@ void printCounters (void);
 void printCommand (void);
 void printMemory (void);
 void printTerm (int address, int input);
+void printCache ();
 void updateTerm ();
 
 void CU ();

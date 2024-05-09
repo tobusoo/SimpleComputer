@@ -61,7 +61,9 @@ void
 printBigCell (void)
 {
   int value;
+  sc_cacheIgnore (1);
   sc_memoryGet (curr_address, &value);
+  sc_cacheIgnore (0);
 
   if (value >> 14)
     bc_printbigchar (&big[34], 9, 64, DEFAULT, DEFAULT);
@@ -91,23 +93,16 @@ printBigCell (void)
 void
 printKeys (void)
 {
-  mt_gotoXY (20, 76);
+  mt_gotoXY (20, 80);
   mt_print ("l - load  s - save   i - reset");
-  mt_gotoXY (21, 76);
+  mt_gotoXY (21, 80);
   mt_print ("r - run   t - step");
-  mt_gotoXY (22, 76);
+  mt_gotoXY (22, 80);
   mt_print ("ESC - выход");
-  mt_gotoXY (23, 76);
+  mt_gotoXY (23, 80);
   mt_print ("F5 - accumulator");
-  mt_gotoXY (24, 76);
+  mt_gotoXY (24, 80);
   mt_print ("F6 - instruction counter");
-}
-
-void
-printCache (void)
-{
-  mt_gotoXY (20, 2);
-  mt_print ("in progress...");
 }
 
 int
@@ -164,9 +159,9 @@ icounter_redactor ()
 {
   int value;
   sc_icounterGet (&value);
-  mt_gotoXY (5, 73);
+  mt_gotoXY (5, 77);
   mt_print ("     ");
-  mt_gotoXY (5, 73);
+  mt_gotoXY (5, 77);
 
   int ret = rk_readvalue (&value, 100);
   if (ret == 0)
@@ -182,9 +177,11 @@ cell_redactor ()
   mt_print ("     ");
   mt_gotoXY (row + 2, col * 6 + 2);
 
+  sc_cacheIgnore (1);
   int ret = rk_readvalue (&value, 10);
   if (ret == 0)
     sc_memorySet (curr_address, value);
+  sc_cacheIgnore (0);
 
   return ret;
 }
@@ -223,7 +220,10 @@ load_memory ()
   mt_print ("%*c", 100, ' ');
   printMemory ();
   int val;
+  sc_cacheIgnore (1);
   sc_memoryGet (curr_address, &val);
+  sc_cacheIgnore (0);
+  sc_cacheInit ();
 
   printCell (curr_address, BLACK, WHITE);
   printBigCell ();
@@ -235,7 +235,10 @@ void
 updateUI ()
 {
   int cur_value;
+  sc_cacheIgnore (1);
   sc_memoryGet (curr_address, &cur_value);
+  sc_cacheIgnore (0);
+
   printCommand ();
   printDecodedCommand (cur_value);
   printBigCell ();
@@ -244,15 +247,25 @@ updateUI ()
   printMemory ();
   printCell (curr_address, BLACK, WHITE);
   printFlags ();
+  printCache ();
 }
 
 void
-reset ()
+sc_init ()
 {
   sc_memoryInit ();
   sc_accumulatorInit ();
   sc_icounterInit ();
   sc_regInit ();
+  sc_cacheInit ();
+  sc_idleClockInit ();
+  sc_cacheIgnore (0);
+}
+
+void
+reset ()
+{
+  sc_init ();
 
   row = 0;
   col = 0;
@@ -266,14 +279,14 @@ draw_boxes ()
 {
   bc_box (1, 1, 59, 13, DEFAULT, DEFAULT, " Оперативная память ", RED, BLACK);
   bc_box (1, 62, 21, 1, DEFAULT, DEFAULT, " Аккумулятор ", RED, BLACK);
-  bc_box (1, 85, 20, 1, DEFAULT, DEFAULT, " Регистр флагов ", RED, BLACK);
+  bc_box (1, 85, 24, 1, DEFAULT, DEFAULT, " Регистр флагов ", RED, BLACK);
   bc_box (4, 62, 21, 1, DEFAULT, DEFAULT, " Счетчик  команд ", RED, BLACK);
-  bc_box (4, 85, 20, 1, DEFAULT, DEFAULT, " Команда ", RED, BLACK);
-  bc_box (7, 62, 43, 10, DEFAULT, DEFAULT,
+  bc_box (4, 85, 24, 1, DEFAULT, DEFAULT, " Команда ", RED, BLACK);
+  bc_box (7, 62, 47, 10, DEFAULT, DEFAULT,
           " Редактируемая ячейка (увеличено) ", RED, WHITE);
-  bc_box (19, 1, 60, 5, DEFAULT, DEFAULT, " Кеш процессора ", GREEN, WHITE);
-  bc_box (19, 75, 30, 5, DEFAULT, DEFAULT, " Клавиши ", GREEN, WHITE);
-  bc_box (19, 63, 10, 5, DEFAULT, DEFAULT, " IN--OUT ", GREEN, WHITE);
+  bc_box (19, 1, 64, 5, DEFAULT, DEFAULT, " Кеш процессора ", GREEN, WHITE);
+  bc_box (19, 67, 10, 5, DEFAULT, DEFAULT, " IN--OUT ", GREEN, WHITE);
+  bc_box (19, 79, 30, 5, DEFAULT, DEFAULT, " Клавиши ", GREEN, WHITE);
 }
 
 void
@@ -348,6 +361,19 @@ key_processing (bool *update_ui, bool *need_exit)
     }
 }
 
+void
+set_signals ()
+{
+  signal (SIGALRM, IRC);
+  signal (SIGUSR1, IRC);
+  struct itimerval nval, oval;
+  nval.it_interval.tv_sec = 0;
+  nval.it_interval.tv_usec = 500000;
+  nval.it_value.tv_sec = 1;
+  nval.it_value.tv_usec = 0;
+  setitimer (ITIMER_REAL, &nval, &oval);
+}
+
 int
 main (int argc, char *argv[])
 {
@@ -355,10 +381,8 @@ main (int argc, char *argv[])
     return 1;
 
   mt_setcursorvisible (0);
-  sc_memoryInit ();
-  sc_accumulatorInit ();
-  sc_icounterInit ();
-  sc_regInit ();
+  sc_init ();
+  set_signals ();
 
   signal (SIGALRM, IRC);
   signal (SIGUSR1, IRC);
@@ -375,7 +399,6 @@ main (int argc, char *argv[])
   bool update_ui = true;
 
   draw_boxes ();
-  printCache ();
   printKeys ();
   updateUI (is_not_running);
   while (!need_exit)
