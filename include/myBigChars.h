@@ -1,6 +1,5 @@
 #pragma once
 #include <myTerm.h>
-#
 
 int bc_strlen (char *str);
 int bc_printA (char *str);
